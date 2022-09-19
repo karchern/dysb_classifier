@@ -1,3 +1,5 @@
 data/*
 tmp/*
 results/*
+results_parsed/*
+results_tmp/*
