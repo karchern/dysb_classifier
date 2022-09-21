@@ -2,16 +2,23 @@ library(gridExtra)
 library(tidyverse)
 # CDI has only controls and thus always fails in evaulation step.
 #conditions <- c("CRC","IBD","ACVD","MS","OB","HTN","LCIR","CDI","AS","RA","BC")
-conditions <- c("CRC","IBD","ACVD","MS","OB","HTN","LCIR","AS","RA","BC")
+#conditions <- c("CRC","IBD","ACVD","MS","OB","HTN","LCIR","AS","RA","BC")
+#conditions <- c("CRC","UC","CD","ACVD","MS","OB","HTN","LCIR","AS","RA","BC")
+conditions <- c("CRC","ADA", "UC","CD","ACVD","MS","OB","HTN","LCIR","AS","RA","BC")
 lowAbFiltering <- c("TRUE", "FALSE")
 block <- c("condition", "no_blocking")
 MLalgorithm <- c("RF", "lasso", "lasso_ll")
 subsample <- c("TRUE", "FALSE")
 genusLevel <- c("TRUE", "FALSE")
 featureEng <- c("TRUE", "FALSE")
-data <- expand.grid(conditions, lowAbFiltering, block, MLalgorithm,subsample, genusLevel, featureEng, stringsAsFactors = FALSE) %>% 
+
+reSample <- c("1", "10")
+includeCohortStudies <- c("TRUE", "FALSE")
+# batchCorrection <- c("TRUE", "FALSE")
+
+data <- expand.grid(conditions, lowAbFiltering, block, MLalgorithm,subsample, genusLevel, featureEng, reSample, includeCohortStudies, stringsAsFactors = FALSE) %>% 
 as.data.frame()
-colnames(data) <- c("condition", "lowAbFiltering", 'block', "MLalgorithm", "subsample", "genusLevel", 'featureEng')
+colnames(data) <- c("condition", "lowAbFiltering", 'block', "MLalgorithm", "subsample", "genusLevel", 'featureEng', 'reSample', 'includeCohortStudies')
 
 a <- list()
 for (i in 1:dim(data)[1]){

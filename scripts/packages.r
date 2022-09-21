@@ -54,32 +54,64 @@ getFeatures <- function(dataMetaAdaptedTruncWideAll, metaDataWGS) {
 
     # Overall Richness
     richness <- apply(dataMetaAdaptedTruncWideAll, 2, function(x) sum(x>0))
+    richnessWithCutoff <- apply(dataMetaAdaptedTruncWideAll, 2, function(x) sum(x>1E-5))
+                      
     # what is less prevalent than 5% in healthy controls? Sum up prevalences and add as feature
     HC <- dataMetaAdaptedTruncWideAll[, colnames(dataMetaAdaptedTruncWideAll) %in% (metaDataWGS %>% 
                                                                                           filter(caseControls == "control") %>% 
                                                                                           mutate(r = rownames(.)) %>% 
                                                                                           pull(r))]
-    absentInHC <- apply(HC, 1, function(x) mean(x>0) < 0.05) 
-    richnessAbsentInHC <- apply(dataMetaAdaptedTruncWideAll[absentInHC, ], 2, function(x) sum(x>0))                                            
+    absentInHC <- apply(HC, 1, function(x) mean(x>0) < 0.05)
+    absentInHCWithCutoff <- apply(HC, 1, function(x) mean(x>1E-5) < 0.05)                    
+    richnessAbsentInHC <- apply(dataMetaAdaptedTruncWideAll[absentInHC, ], 2, function(x) sum(x>0))
+    richnessWithCutoffAbsentInHCWithCutoff <- apply(dataMetaAdaptedTruncWideAll[absentInHCWithCutoff, ], 2, function(x) sum(x>1E-5))                            
     # what is less prevalent than 5% in healthy controls? Sum up abundances and add as feature
     cumAbundanceAbsentInHC <- apply(dataMetaAdaptedTruncWideAll[absentInHC, ], 2, function(x) sum(x))                              
-    # what is more prevalent than 80% in healthy controls? Sum up their prevalences and add as feature
-    presentInHC <- apply(HC, 1, function(x) mean(x>0) > 0.8) 
-    richnessPresentInHC <- apply(dataMetaAdaptedTruncWideAll[presentInHC, ], 2, function(x) sum(x>0))                                  
+    cumAbundanceAbsentInHCWithCutoff <- apply(dataMetaAdaptedTruncWideAll[absentInHCWithCutoff, ], 2, function(x) sum(x))                                                                  
+    # what is more prevalent than 50% in healthy controls? Sum up their prevalences and add as feature
+    presentInHC <- apply(HC, 1, function(x) mean(x>0) > 0.5) 
+    presentInHCWithCutoff <- apply(HC, 1, function(x) mean(x>1E-5) > 0.5)                          
+    richnessPresentInHC <- apply(dataMetaAdaptedTruncWideAll[presentInHC, ], 2, function(x) sum(x>0))
+    richnessWithCutoffPresentInHCWithCutoff <- apply(dataMetaAdaptedTruncWideAll[presentInHCWithCutoff, ], 2, function(x) sum(x>1E-5))                                 
     # what is more prevalent than 80% in healthy controls? Sum up their abundances and add as feature
     cumAbundancePresentInHC <- apply(dataMetaAdaptedTruncWideAll[presentInHC, ], 2, function(x) sum(x))
+    cumAbundancePresentInHCWithCutoff <- apply(dataMetaAdaptedTruncWideAll[presentInHCWithCutoff, ], 2, function(x) sum(x))
+                                               
+    # relAbundance of top taxon
+    topTaxonRelAb <- apply(dataMetaAdaptedTruncWideAll, 2, function(x) max(x))   
+    # meanRelAbundance of 5% of non-zero taxa (skew of abundance distribution)
+    topTaxaRelAb <- apply(dataMetaAdaptedTruncWideAll, 2, function(x) {
+        x <- x[x!=0]
+        l <- length(x)
+        return(mean(x[as.integer(l*0.95):l]))            
+    }) 
+                                                   
 
     morePredictorNames <- c('richness',
+                            "richnessWithCutoff",
                            'richnessAbsentInHC',
+                           'richnessWithCutoffAbsentInHCWithCutoff',
                            'cumAbundanceAbsentInHC',
+                           'cumAbundanceAbsentInHCWithCutoff',
                            'richnessPresentInHC',
-                           'cumAbundancePresentInHC')                                 
+                           'richnessWithCutoffPresentInHCWithCutoff',
+                           'cumAbundancePresentInHC',
+                           'cumAbundancePresentInHCWithCutoff',
+                           'topTaxonRelAb',
+                           'topTaxaRelAb')                                 
 
     allDat <-   list(richness,
+                  richnessWithCutoff,
                   richnessAbsentInHC,
+                  richnessWithCutoffAbsentInHCWithCutoff,   
                   cumAbundanceAbsentInHC,
+                  cumAbundanceAbsentInHCWithCutoff,
                   richnessPresentInHC,
-                  cumAbundancePresentInHC)   
+                  richnessWithCutoffPresentInHCWithCutoff,   
+                  cumAbundancePresentInHC,
+                  cumAbundancePresentInHCWithCutoff,
+                  topTaxonRelAb,
+                  topTaxaRelAb)   
     names(allDat) <- morePredictorNames                                 
 
     return <- list(allDat, morePredictorNames)

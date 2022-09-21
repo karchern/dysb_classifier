@@ -15,4 +15,4 @@ mv tmp.txt cluster_input.txt
 
 echo "Sending the following off to sbatch..."
 head cluster_input.txt
-sbatch train_models_sbatch.sh cluster_input.txt 
+#sbatch train_models_sbatch.sh cluster_input.txt 
